@@ -15,7 +15,7 @@ const router = express.Router();
 mongoose.Promise = global.Promise;
 
 // Connecting to MongoDB
-mongoose.connect('mongodb://localhost/gps', {
+mongoose.connect('mongodb://kollolchk:Turnover121@ds259109.mlab.com:59109/gps', {
     useNewUrlParser: true
 })
     .then(() => console.log('Connected to MongoDB ...'))
