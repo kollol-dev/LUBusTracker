@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 const Request = require("request");
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 
 // Declaring Global lat lng variable
 var lat = 0, lng = 0;
