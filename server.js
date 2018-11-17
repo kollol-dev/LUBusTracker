@@ -11,11 +11,14 @@ var lat = 0, lng = 0;
 // create our router
 const router = express.Router();
 
+DB Config
+const db = require('./config/database');
+
 // Map to global promise
 mongoose.Promise = global.Promise;
 
 // Connecting to MongoDB
-mongoose.connect('mongodb://Kollol:turnover121@ds259109.mlab.com:59109/gps', {
+mongoose.connect(db.mongoURI, {
     useNewUrlParser: true
 })
     .then(() => console.log('Connected to MongoDB ...'))
