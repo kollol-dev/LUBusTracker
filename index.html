@@ -60,6 +60,10 @@
                     //marker.setMap(map);
                     setInterval(() => {
                         multimarker = marker;
+                        infoWindow.setPosition(pos);
+                        infoWindow.setContent('Our Current Location found.');
+                        infoWindow.open(map, multimarker);
+
                         getLocationInclude()
                         for (i = 0; i < locations.length; i++) {
                             multimarker = new google.maps.Marker({
@@ -69,9 +73,7 @@
                         }
                         
                         multimarker.setMap(map)
-                        infoWindow.setPosition(pos);
-                        infoWindow.setContent('Our Current Location found.');
-                        infoWindow.open(map, multimarker);
+                        
                         ;
                     }, 5000);
 
@@ -97,7 +99,7 @@
 
         let getLocationInclude = function () {
             //const axios = require('axios');
-            axios.get('https://hidden-reef-30565.herokuapp.com/api')
+            axios.get('https://glcn.herokuapp.com/api')
                 .then(function (response) {
                     // handle success
                     console.log(response);
@@ -112,7 +114,7 @@
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error);
+                    console.log(error.response);
                 })
                 .then(function () {
                     // always executed
