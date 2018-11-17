@@ -59,7 +59,7 @@
 
                     //marker.setMap(map);
                     setInterval(() => {
-                        
+                        multimarker = marker;
                         getLocationInclude()
                         for (i = 0; i < locations.length; i++) {
                             multimarker = new google.maps.Marker({
@@ -67,7 +67,7 @@
                                 map: map
                             });
                         }
-                        multimarker = marker;
+                        
                         multimarker.setMap(map)
                         infoWindow.setPosition(pos);
                         infoWindow.setContent('Our Current Location found.');
