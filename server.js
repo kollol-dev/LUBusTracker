@@ -11,7 +11,7 @@ var lat = 0, lng = 0;
 // create our router
 const router = express.Router();
 
-DB Config
+//DB Config
 const db = require('./config/database');
 
 // Map to global promise
