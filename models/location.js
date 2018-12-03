@@ -5,6 +5,10 @@ var Schema = mongoose.Schema;
 var SchemaTypes = mongoose.Schema.Types;
 
 var geoLocation = new Schema ({
+    deviceId: {
+        type: Number,
+        required: true
+    },
     place: {
         type: String,
         required: true

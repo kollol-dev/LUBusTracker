@@ -44,40 +44,40 @@
             // Try HTML5 geolocation.
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    var pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
+                    // var pos = {
+                    //     lat: position.coords.latitude,
+                    //     lng: position.coords.longitude
 
-                    };
-                    var marker = new google.maps.Marker({
-                        position: pos,
-                        map: map,
-                        title: 'Our Current Location!'
-                    });
+                    // };
+                    // var marker = new google.maps.Marker({
+                    //     position: pos,
+                    //     map: map,
+                    //     title: 'Our Current Location!'
+                    // });
 
                     var multimarker, i;
 
                     //marker.setMap(map);
                     setInterval(() => {
-                        multimarker = marker;
-                        infoWindow.setPosition(pos);
-                        infoWindow.setContent('Our Current Location found.');
-                        infoWindow.open(map, multimarker);
+                        //multimarker = marker;
+                        // infoWindow.setPosition(pos);
+                        // infoWindow.setContent('Our Current Location found.');
+                        
 
-                        getLocationInclude
+                        getLocationInclude()
                         for (i = 0; i < locations.length; i++) {
                             multimarker = new google.maps.Marker({
                                 position: new google.maps.LatLng(locations[i][0], locations[i][1]),
                                 map: map
                             });
                         }
-                        
+                        //infoWindow.open(map, multimarker);
                         multimarker.setMap(map);
                         
                         ;
                     }, 5000);
 
-                    map.setCenter(pos);
+                    //map.setCenter(position);
                 }, function () {
                     handleLocationError(true, infoWindow, map.getCenter());
                 });
@@ -121,6 +121,11 @@
                 });
 
         }
+
+        // let getLocationUpdate = () => {
+        //     axios.update('http://localhost:3000/api')
+        //         .then(function )
+        // }
 
 
 

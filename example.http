@@ -1,0 +1,8 @@
+POST  http://localhost:3000/api
+content-type: application/json
+
+{
+     "place" : "Sreemangal",
+        "lat" : "24.3010",
+        "lng" : "91.6955"
+}

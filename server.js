@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 const Request = require("request");
+const axios = require("axios");
 const port = process.env.PORT || 3000;
 
 // Declaring Global lat lng variable
@@ -58,6 +59,7 @@ app.use(bodyParser.json());
 // HTTP Post Request
 router.route('/api').post((req, res) => {
     var location = new Location();
+    location.deviceId = req.body.deviceId;
     location.place = req.body.place;
     location.lat = req.body.lat;
     location.lng = req.body.lng;
@@ -78,6 +80,24 @@ router.route('/api').post((req, res) => {
         }
     })
 });
+
+// Ref - https://github.com/SharifCoding/basic-crud-with-mongodb
+
+
+//updating location marker 
+
+// app.put('/api/:deviceId', (req, res, next) => {
+//     let id = {
+//       deviceid: ObjectID(req.params.deviceId)
+//     };
+
+//     dbase.collection("locations").update({place: req.body.place},{deviceid: deviceId}, {$set:{'place': req.body.place, 'lat': req.body.lat, 'lng': req.body.lng}}, (err, result) => {
+//       if(err) {
+//         throw err;
+//       }
+//       console.log("user updated successfully!");
+//     });
+// });
 
 // // Retrieving Data from API
 // Request.get('http://localhost:3000/api', (error, response, body) => {
