@@ -77,9 +77,6 @@ public class TrackerService extends Service {
         }
     };
 
-    private void loginToFirebase() {
-        // Functionality coming next step
-    }
 
     private void requestLocationUpdates() {
         LocationRequest request = new LocationRequest();
