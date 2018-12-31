@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <!-- socket scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script> </script>
+
+    </script>
+
+
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 80%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+        var locations = [];
+    </script>
+    <script>
+        // Note: This example requires that you consent to location sharing when
+        // prompted by your browser. If you see the error "The Geolocation service
+        // failed.", it means you probably did not give permission for the browser to
+        // locate you.
+        var socket = io("https://socketglc.herokuapp.com");
+        var map, infoWindow;
+        var markers = [];
+        var markersId = [];
+
+
+        //console.log(server.lat + ' and html ' + server.lng)
+        function initialize() {
+            var mapOptions = {
+                zoom: 12
+            };
+            map = new google.maps.Map(document.getElementById('map'),
+                mapOptions);
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+            google.maps.event.addDomListener(window, "resize", function () {
+                var center = map.getCenter();
+                google.maps.event.trigger(map, "resize");
+                map.setCenter(center);
+            });
+
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(function (position) {
+                    var pos = new google.maps.LatLng(position.coords.latitude,
+                        position.coords.longitude);
+
+                    socket.emit('marker', {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+
+                    var infowindow = new google.maps.InfoWindow({
+                        map: map,
+                        position: pos,
+                        content: 'You are here'
+                    });
+
+                    map.setCenter(pos);
+                }, function () {
+                    handleNoGeolocation(true);
+                });
+            } else {
+                // Browser doesn't support Geolocation
+                handleNoGeolocation(false);
+            }
+
+            //google.maps.event.addListener(window, 'load', initialize);
+
+            // listen for Marker event
+            socket.on('show-marker', (data) => {
+                google.maps.event.addListener(map, 'load', function (data) {
+
+                    var marker = addMarker(data);
+                });
+            });
+
+            //Listens for other users markers
+            // socket.on('show-marker', function (data) {
+            //     addMarker(data, socket.id);
+            // });
+
+            socket.on('show-device-marker', (data) => {
+                console.log('socketId: ' + data.id);
+                console.log('device lat: ' + data.lat + " lng: " + data.lng);
+                if (markers[data.id] == null) {
+                    addMarker(data, data.id);
+
+                }
+                else {
+                    console.log('markers[' + data.id + '] isnt empty');
+
+                    updateMarker(data, data.id);
+                }
+            })
+
+        }
+        function handleNoGeolocation(errorFlag) {
+            if (errorFlag) {
+                var content = 'Error: The Geolocation service failed.';
+            } else {
+                var content = 'Error: Your browser doesn\'t support geolocation.';
+            }
+
+            var options = {
+                map: map,
+                position: new google.maps.LatLng(60, 105),
+                content: content
+            };
+            var infowindow = new google.maps.InfoWindow(options);
+            map.setCenter(options.position);
+        }
+
+        // google.maps.event.addDomListener(window, 'load', initialize);
+
+        // // Add a marker to the map 
+        // function addMarker(location) {
+        //     text = text || '';
+
+
+        //     var marker = new google.maps.Marker({
+        //         position: location,
+        //         map: map
+        //     });
+        //     var infoWindow = new google.map.InfoWindow();
+        //     google.maps.event.addListener(marker, 'click', function () {
+        //         infowindow.setContent(text);
+        //         infowindow.open(map, marker);
+        //     });
+
+        //     return marker;
+
+        //     //markers.push(marker);
+
+        //     console.log(location);
+        //     console.log("marker: " + marker.position.k + " " + marker.position.D);
+
+        //     return marker;
+        // }
+
+
+
+
+
+
+
+        function addMarker(data, id) {
+
+            console.log('from addMarker()...' + data.lat + " " + data.lng);
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(data.lat, data.lng),
+                map: map
+            });
+
+            markers[id] = marker;
+            console.log("marker: " + markers[id].lat + " " + markers[id].lng);
+
+            return markers;
+        }
+
+        function updateMarker(data, id) {
+            markers[id].setMap(null);
+
+            let updatedNewMarker = new google.maps.Marker({
+                position: new google.maps.LatLng(data.lat, data.lng),
+                map: map
+            });
+
+            markers[id] = updatedNewMarker;
+
+            return markers;
+        }
+
+        function showMarkerOnLoad() {
+            for (let i = 0; i < markers.length; i++) {
+                markers[i].setMap(map);
+            }
+        }
+
+        Window.onload = showMarkerOnLoad;
+
+
+
+        // let getLocationInclude = function () {
+        //     //const axios = require('axios');
+        //     axios.get('http://localhost:3000/api')
+        //         .then(function (response) {
+        //             // handle success
+        //             console.log(response);
+        //             let len = response.data.length;
+        //             let i, j;
+
+
+        //             for (i = 0; i < len; i++) {
+        //                 locations.push([response.data[i].lat, response.data[i].lng]);
+        //             }
+
+        //         })
+        //         .catch(function (error) {
+        //             // handle error
+        //             console.log(error.response);
+        //         })
+        //         .then(function () {
+        //             // always executed
+        //         });
+
+        // }
+
+        // let getLocationUpdate = () => {
+        //     axios.update('http://localhost:3000/api')
+        //         .then(function )
+        // }
+
+
+
+        //let delay = 20000;
+
+        // let timerId = () => {
+        //     setTimeout(function getLocationInclude() {
+
+        //         setImmediately(() => {
+        //             getLocationInclude;
+        //         })
+        //     }, delay);
+        // }
+
+        // setInterval(() => {
+        //     getLocationInclude();
+        // }, 5000);;
+
+        //window.onload = getLocationInclude;
+
+
+    </script>
+    <script type="text/javascript">
+
+
+    </script>
+
+
+
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDc6ZgPsP3s-ChY2uQ_ZVb4vDpmssYpAYg&callback=initialize">
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</body>
+
+</html>

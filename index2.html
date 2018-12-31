@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="app/styles/main.css">
+    <!--    Internal map style (cant remove)-->
+    <style type="text/css">
+        html,
+        body,
+        #map-canvas {
+            height: 90%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <!--   Public API  -->
+    <script src="https://maps.googleapis.com/maps/api/js? 
+v=3.exp&signed_in=false"></script>
+    <div id="map-canvas"></div>
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js">
+    </script>
+    <script src="bower_components/angular-cookies/angular-cookies.js">
+    </script>
+    <script src="bower_components/angular-resource/angular-resource.js">
+    </script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js">
+    </script>
+    <script src="bower_components/angular-touch/angular-touch.js"></script>
+
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="app/scripts/app.js"></script>
+    <script src="app/scripts/controllers/main.js"></script>
+    <script src="app/scripts/map.js"></script>
+    <script src="app/scripts/controllers/about.js"></script>
+    <!-- socket scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script> var socket = io();</script>
+
+
+
+    <script>
+        "use strict";
+        var map;
+        var markers = []
+
+        function initialize() {
+            var mapOptions = {
+                zoom: 16
+            };
+            map = new google.maps.Map(document.getElementById('map-canvas'),
+                mapOptions);
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+            google.maps.event.addDomListener(window, "resize", function () {
+                var center = map.getCenter();
+                google.maps.event.trigger(map, "resize");
+                map.setCenter(center);
+            });
+
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(function (position) {
+                    var pos = new google.maps.LatLng(position.coords.latitude,
+                        position.coords.longitude);
+
+                    var infowindow = new google.maps.InfoWindow({
+                        map: map,
+                        position: pos,
+                        content: 'You are here'
+                    });
+
+                    map.setCenter(pos);
+                }, function () {
+                    handleNoGeolocation(true);
+                });
+            } else {
+                // Browser doesn't support Geolocation
+                handleNoGeolocation(false);
+            }
+        }
+        function handleNoGeolocation(errorFlag) {
+            if (errorFlag) {
+                var content = 'Error: The Geolocation service failed.';
+            } else {
+                var content = 'Error: Your browser doesn\'t support geolocation.';
+            }
+
+            var options = {
+                map: map,
+                position: new google.maps.LatLng(60, 105),
+                content: content
+            };
+            var infowindow = new google.maps.InfoWindow(options);
+            map.setCenter(options.position);
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+
+
+        // listen for Marker event
+        google.maps.event.addListener(map, 'load', function (event) {
+
+            var marker = addMarker(event.latLng);
+
+
+            socket.emit('marker', {
+                'lat': marker.position.k,
+                'lng': marker.position.D
+            });
+        });
+
+        // Add a marker to the map 
+        function addMarker(location) {
+
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+
+            markers.push(marker);
+
+            console.log(location);
+            console.log("marker: " + marker.position.k + " " + marker.position.D);
+
+            return marker;
+        }
+
+        //Listens for other users markers
+        socket.on('show-marker', function(data){
+            console.log(data);
+            var loc = new google.maps.LatLng(data.lat, data.lng);
+            addMarker(loc, data.socketID);
+        });
+
+    </script>
+    </body>
+
+</html>
+
+// server.js
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var path = require("path")
+var port = process.env.PORT || 3000
+var http = require('http').Server(app);
+
+app.use(express.static(__dirname + '/'));
+
+app.get('/', function (req, res) {
+res.sendFile(path.join(__dirname + '/app/index.html'));
+});
+
+
+var io = require('socket.io')(http);
+
+io.on('connection', function(socket){
+console.log('a user connected');
+
+socket.on('marker', function(data) {
+
+console.log('marker latitude: ' + data.lat + ', marker longitude:' +      
+data.lng);
+socket.broadcast.emit('show-marker', data);
+});
+
+});
+http.listen(3000, function(){
+console.log('five minute catch up is on port 3000');
+});
+
+module.exports = server; 
+
+
+
+ 
