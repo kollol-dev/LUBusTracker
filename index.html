@@ -192,7 +192,7 @@
         }
 
         function showMarkerOnLoad() {
-            for (let i = 0; i < markers.length; i++) {
+            for (let i in markers) {
                 markers[i].setMap(map);
             }
         }
