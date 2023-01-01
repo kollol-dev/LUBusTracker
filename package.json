@@ -6,7 +6,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
-    "config": "^2.0.1",
+    "config": "^3.3.8",
     "express": "^4.16.4",
     "mongoose": "^5.7.5",
     "mongoose-double": "^0.0.1",
